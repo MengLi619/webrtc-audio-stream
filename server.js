@@ -2,19 +2,23 @@ const sio = require('socket.io');
 const uuid = require('node-uuid');
 const open = require('open');
 const express = require('express');
+const fs = require('fs');
 const app = express();
-const http = require('http').Server(app);
+const https = require('https').createServer({
+  key: fs.readFileSync('key.pem', 'utf8'),
+  cert: fs.readFileSync('cert.pem', 'utf8')
+}, app);
 
 app.use(express.static('src'));
 
 // Create and configure socket.io
-const io = sio.listen(http, { log: true });
+const io = sio.listen(https, { log: true });
 
 const port = process.env.PORT || 8080;
 
-http.listen(port, () => {
+https.listen(port, () => {
   console.log('Listening on port :' + port);
-  open('http://localhost:' + port + '/station.html');
+  open('https://localhost:' + port + '/station.html');
 });
 
 // keeping track of connections
